@@ -97,7 +97,6 @@ My next task was to style the comments so that they would display nicer than the
 
 To start with I used Bootstrap to style the comments into a simple design which showed the author, likes, dislikes, a time since posting, a reply button, and a delete button. I used Razor to display a stylized time since posting the comment. I also implemented some temporary action links to be updated later for liking and disliking the comment.
 ```@model IEnumerable<TheatreCMS3.Areas.Blog.Models.Comment>
-<script src="https://kit.fontawesome.com/d0b84d89ac.js" crossorigin="anonymous"></script>
 
 <div class="table">
     @foreach (var item in Model)
@@ -150,4 +149,62 @@ To start with I used Bootstrap to style the comments into a simple design which 
             </div>
         </div>}
 </div>
+```
+
+# Likes & Dislikes
+After updating the way comments were displayed I was tasked with adding functionality to the like and dislike buttons.
+
+I think I learned the most from this story, since I had never used AJAX and MVC in the same application.
+I added a like and dislike function to the controller
+```     
+        [HttpPost]
+        public JsonResult Like(int? id)
+        {
+            Comment comment = db.Comments.Find(id);
+            int CurrentLikes = comment.Likes;
+            comment.Likes = CurrentLikes + 1;
+            db.SaveChanges();
+            return Json(comment);
+        }
+
+        [HttpPost]
+        public JsonResult Dislike(int? id)
+        {
+            Comment comment = db.Comments.Find(id);
+            int CurrentDislikes = comment.Dislikes;
+            comment.Dislikes = CurrentDislikes + 1;
+            db.SaveChanges();
+            return Json(comment);
+        }
+```
+
+I also wrote Javascript functions to call them using AJAX. These functions also update the page to show a live display of the number of likes and dislikes without the page needing to be reloaded. It also only updates the current number of likes on a successful POST request, making sure that the database and the web page are always in sync even though the number of likes is being updated with Javascript I don't love my functions having side effects, but this seemed like a good way to do it concisely.
+```
+    function like(id) {
+        $.ajax({
+            type: "POST",
+            url: "Like",
+            data: { id: id },
+            success: function (data) {
+                likes = parseInt(document.getElementById(`likes ${id}`).innerHTML)
+                document.getElementById(`likes ${id}`).innerHTML = likes + 1;
+            }
+        });
+    }
+    function dislike(id) {
+        $.ajax({
+            type: "POST",
+            url: "Dislike",
+            data: { id: id },
+            success: function (data) {
+                dislikes = parseInt(document.getElementById(`dislikes ${id}`).innerHTML)
+                document.getElementById(`dislikes ${id}`).innerHTML = dislikes + 1;
+            }
+        });
+    }
+```
+
+I also updated the like and dislike buttons to call the functions
+```<a href="#" onclick="like(@item.Commentid); return false;" class="card-link"><i class="fas fa-thumbs-up text-secondary"></i></a><a id="likes @item.Commentid">@Html.DisplayFor(modelItem => item.Likes)</a>
+                    <a href="#" onclick="dislike(@item.Commentid); return false;" class="card-link mx-1"><i class="fas fa-thumbs-down text-secondary"></i></a><a id="dislikes @item.Commentid">@Html.DisplayFor(modelItem => item.Dislikes)</a>
 ```
