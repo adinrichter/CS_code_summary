@@ -9,11 +9,7 @@ Below are the stories I worked on, and how I solved them.
 The first story I was tasked with was to create a comment model. I then used the template made when creating the controller to get basic CRUD pages working so that I could create and view comments.
 
 This is the comment model I made, it has a constructor which sets the comment's date to the current time, and a LikeRatio function to return the ratio of likes and dislikes, I did end up updating this LikeRatio function later on, as it didn't quite fit my needs.
-```using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
+```
 namespace TheatreCMS3.Areas.Blog.Models
 {
     public class Comment
@@ -39,8 +35,7 @@ namespace TheatreCMS3.Areas.Blog.Models
 I was tasked with creating a partial view to display the comments so that the comments could be used in other views without causing bloat.
 
 This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now I just used the default template created as my goal was only to have a functioning partial to iterate on later.
-```@model IEnumerable<TheatreCMS3.Areas.Blog.Models.Comment>
-
+```
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
@@ -96,8 +91,7 @@ This was my first time working with partial views in MVC, and figuring out how t
 My next task was to style the comments so that they would display nicer than the default MVC view.
 
 To start with I used Bootstrap to style the comments into a simple design which showed the author, likes, dislikes, a time since posting, a reply button, and a delete button. I used Razor to display a stylized time since posting the comment. I also implemented some temporary action links to be updated later for liking and disliking the comment.
-```@model IEnumerable<TheatreCMS3.Areas.Blog.Models.Comment>
-
+```
 <div class="table">
     @foreach (var item in Model)
     {
@@ -157,54 +151,77 @@ After updating the way comments were displayed I was tasked with adding function
 I think I learned the most from this story, since I had never used AJAX and MVC in the same application.
 I added a like and dislike function to the controller
 ```     
-        [HttpPost]
-        public JsonResult Like(int? id)
-        {
-            Comment comment = db.Comments.Find(id);
-            int CurrentLikes = comment.Likes;
-            comment.Likes = CurrentLikes + 1;
-            db.SaveChanges();
-            return Json(comment);
-        }
+[HttpPost]
+public JsonResult Like(int? id)
+{
+    Comment comment = db.Comments.Find(id);
+    int CurrentLikes = comment.Likes;
+    comment.Likes = CurrentLikes + 1;
+    db.SaveChanges();
+    return Json(comment);
+}
 
-        [HttpPost]
-        public JsonResult Dislike(int? id)
-        {
-            Comment comment = db.Comments.Find(id);
-            int CurrentDislikes = comment.Dislikes;
-            comment.Dislikes = CurrentDislikes + 1;
-            db.SaveChanges();
-            return Json(comment);
-        }
+[HttpPost]
+public JsonResult Dislike(int? id)
+{
+    Comment comment = db.Comments.Find(id);
+    int CurrentDislikes = comment.Dislikes;
+    comment.Dislikes = CurrentDislikes + 1;
+    db.SaveChanges();
+    return Json(comment);
+}
 ```
 
 I also wrote Javascript functions to call them using AJAX. These functions also update the page to show a live display of the number of likes and dislikes without the page needing to be reloaded. It also only updates the current number of likes on a successful POST request, making sure that the database and the web page are always in sync even though the number of likes is being updated with Javascript I don't love my functions having side effects, but this seemed like a good way to do it concisely.
 ```
-    function like(id) {
-        $.ajax({
-            type: "POST",
-            url: "Like",
-            data: { id: id },
-            success: function (data) {
-                likes = parseInt(document.getElementById(`likes ${id}`).innerHTML)
-                document.getElementById(`likes ${id}`).innerHTML = likes + 1;
-            }
-        });
-    }
-    function dislike(id) {
-        $.ajax({
-            type: "POST",
-            url: "Dislike",
-            data: { id: id },
-            success: function (data) {
-                dislikes = parseInt(document.getElementById(`dislikes ${id}`).innerHTML)
-                document.getElementById(`dislikes ${id}`).innerHTML = dislikes + 1;
-            }
-        });
-    }
+function like(id) {
+    $.ajax({
+        type: "POST",
+        url: "Like",
+        data: { id: id },
+        success: function (data) {
+            likes = parseInt(document.getElementById(`likes ${id}`).innerHTML)
+            document.getElementById(`likes ${id}`).innerHTML = likes + 1;
+        }
+    });
+}
+function dislike(id) {
+    $.ajax({
+        type: "POST",
+        url: "Dislike",
+        data: { id: id },
+        success: function (data) {
+            dislikes = parseInt(document.getElementById(`dislikes ${id}`).innerHTML)
+            document.getElementById(`dislikes ${id}`).innerHTML = dislikes + 1;
+        }
+    });
+}
 ```
 
 I also updated the like and dislike buttons to call the functions
-```<a href="#" onclick="like(@item.Commentid); return false;" class="card-link"><i class="fas fa-thumbs-up text-secondary"></i></a><a id="likes @item.Commentid">@Html.DisplayFor(modelItem => item.Likes)</a>
-                    <a href="#" onclick="dislike(@item.Commentid); return false;" class="card-link mx-1"><i class="fas fa-thumbs-down text-secondary"></i></a><a id="dislikes @item.Commentid">@Html.DisplayFor(modelItem => item.Dislikes)</a>
 ```
+<a href="#" onclick="like(@item.Commentid); return false;" class="card-link"><i class="fas fa-thumbs-up text-secondary"></i></a><a id="likes @item.Commentid">@Html.DisplayFor(modelItem => item.Likes)</a>
+<a href="#" onclick="dislike(@item.Commentid); return false;" class="card-link mx-1"><i class="fas fa-thumbs-down text-secondary"></i></a><a id="dislikes @item.Commentid">@Html.DisplayFor(modelItem => item.Dislikes)</a>
+```
+
+# Like/Dislike ratio display
+After getting liking and disliing comments functioning I was tasked to move on to a bar which showed the ratio of likes and dislikes.
+
+I started by adding a LikeRatio function to the controller so that I could use Ajax to get the like and dislike ratio when a user interacted with a comment
+```
+[HttpPost]
+public JsonResult LikeRatio(int? id)
+{
+    Comment comment = db.Comments.Find(id);
+    double data = comment.LikeRatio();
+    string LikeRatio = JsonConvert.SerializeObject(data);
+    return Json(LikeRatio);
+}
+```
+I added a Bootstrap progress bar to display the percentage of likes to dislikes
+```
+<div id="prog-super @item.Commentid" class="progress my-2 bg-danger" style="width: 35%;">
+    @{string width = item.LikeRatio() + "%";}
+    <div id="progress @item.Commentid" class="progress-bar bg-success" role="progressbar" style="width: @width" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+                        ```
