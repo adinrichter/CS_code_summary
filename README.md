@@ -207,7 +207,70 @@ I also updated the like and dislike buttons to call the functions
 # Like/Dislike ratio display
 After getting liking and disliing comments functioning I was tasked to move on to a bar which showed the ratio of likes and dislikes.
 
-I started by adding a LikeRatio function to the controller so that I could use Ajax to get the like and dislike ratio when a user interacted with a comment
+I updated my Comments model to return a more usable LikeRatio number
+```
+public double LikeRatio()
+    {
+
+        int total = Likes + Dislikes;
+        return (double)Likes / total * 100;
+    }
+```
+
+Then I added a Bootstrap progress bar to display the percentage of likes to dislikes
+```
+<div id="prog-super @item.Commentid" class="progress my-2 bg-danger" style="width: 35%;">
+    @{string width = item.LikeRatio() + "%";}
+    <div id="progress @item.Commentid" class="progress-bar bg-success" role="progressbar" style="width: @width" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+```
+
+I decided I didn't want to have side effects or redundancies in my functions, so I added an increment function that the like and dislike functions call when they're run. I also added an update function which updates the display of the like and dislike ratio bar when it's interacted with so that it updates in real time.
+```
+function like(id) {
+    $.ajax({
+        type: "POST",
+        url: "Like",
+        data: { id: id },
+        success: function (data) {
+            increment(`likes ${id}`);
+            update(id);
+        }
+    });
+}
+
+function dislike(id) {
+    $.ajax({
+        type: "POST",
+        url: "Dislike",
+        data: { id: id },
+        success: function (data) {
+            increment(`dislikes ${id}`);
+            update(id);
+        }
+    });
+}
+
+function increment(id) {
+    const element = document.getElementById(id);
+    value = parseInt(element.innerHTML)
+    element.innerHTML = value + 1;
+}
+
+function update(id) {
+    $.ajax({
+        type: "POST",
+        url: "LikeRatio",
+        data: { id: id },
+        success: function (response) {
+            document.getElementById(`progress ${id}`).style.width = `${response}%`;
+            document.getElementById(`prog-super ${id}`).className = "progress my-2 bg-danger";
+        }
+    });
+}
+```
+
+I also added a LikeRatio function to the controller so that I could use AJAX to get the like and dislike ratio
 ```
 [HttpPost]
 public JsonResult LikeRatio(int? id)
@@ -218,10 +281,77 @@ public JsonResult LikeRatio(int? id)
     return Json(LikeRatio);
 }
 ```
-I added a Bootstrap progress bar to display the percentage of likes to dislikes
+
+# Delete button
+The last thing I worked on was a delete button that used Ajax. I was tasked with adding a delete button that didn't redirect the page when clicked.
+
+I added a Controller which deletes the comment when called
 ```
-<div id="prog-super @item.Commentid" class="progress my-2 bg-danger" style="width: 35%;">
-    @{string width = item.LikeRatio() + "%";}
-    <div id="progress @item.Commentid" class="progress-bar bg-success" role="progressbar" style="width: @width" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+[HttpPost]
+public JsonResult Dislike(int? id)
+{
+    Comment comment = db.Comments.Find(id);
+    int CurrentDislikes = comment.Dislikes;
+    comment.Dislikes = CurrentDislikes + 1;
+    db.Entry(comment).State = EntityState.Modified;
+    db.SaveChanges();
+    return Json(comment);
+}
+```
+
+I used a modal to bring up a confirmation menu when the button is deleted.
+```
+<div class="modal-content">
+    <div class="modal-header bg-light">
+        <h5 class="modal-title text-danger" id="modalLabel">Delete Comment?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body bg-light">
+        Are you sure you want to delete this comment? This cannot be undone.
+    </div>
+    <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="deleteComment(@item.Commentid)" data-dismiss="modal">Delete</button>
+    </div>
 </div>
-                        ```
+```
+
+I also used another modal to bring up a pop-up confirming that the message was deleted.
+```
+<div class="modal fade" id="deleteConfirmation" tabindex="-1" role="alert" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body bg-success">
+                Comment deleted successfully.
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+To interact with the second modal, delete the comment clientside, and call the delete controller I made a deleteComment javascript function which also calls a confirmDelete function. The confirmDelete function shows a confirmation pop up that the comment was deleted once the AJAX completes successfully. It also calls the deleteTable function which deletes the comment from the DOM.
+```
+unction deleteComment(id) {
+    $.ajax({
+        type: "POST",
+        url: "Delete",
+        data: { id: id },
+        success: function (response) {
+            deleteTable(id);
+            confirmDelete();
+        }
+    });
+}
+
+function confirmDelete() {
+    $("#deleteConfirmation").modal({ backdrop: false });
+    setTimeout(function () { $("#deleteConfirmation").modal("hide"); }, 3000)
+}
+
+function deleteTable(id) {
+    table = document.getElementById(id);
+    table.remove();
+}
+```
