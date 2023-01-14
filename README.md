@@ -16,6 +16,12 @@ The project was divided into several stories, each of which required different s
 * Utilizing Razor for dynamic data display
 * Styling and formatting comments for improved user experience
 
+# Languages and frameworks used
+* C#
+* Javascript
+* ASP.NET MVC
+* Bootstrap
+
 # Comment model
 The first story I was tasked with was to create a comment model. I then used the template made when creating the controller to get basic CRUD pages working so that I could create and view comments.
 
@@ -45,111 +51,13 @@ namespace TheatreCMS3.Areas.Blog.Models
 # Comments partial view
 The next story I worked on was creating a partial view to display the comments so that the comments could be used in other views without causing bloat. This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now, I just used the default template created, as my goal was only to have a functioning partial to iterate on later:
 ```
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Author)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Message)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CommentDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Likes)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Dislikes)
-        </th>
-        <th></th>
-    </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Author)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Message)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CommentDate)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Likes)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Dislikes)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Commentid }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Commentid }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Commentid })
-        </td>
-    </tr>
-}
-
-</table>
+picture of default comment view
 ```
 
 # Styling the comments
 My next task was to style the comments to improve their appearance compared to the default MVC view. To achieve this, I used Bootstrap to create a simple design that included the author, likes, dislikes, a time since posting, a reply button, and a delete button. I also utilized Razor to display a stylized time since the comment was posted. Additionally, I added temporary action links for liking and disliking the comments:
 ```
-<div class="table">
-    @foreach (var item in Model)
-    {
-        <div class="card my-2 mx-auto" style="width: 18rem;">
-            <div class="card-body my-0">
-                <h5 class="card-title text-dark my-0">
-                    @Html.DisplayFor(modelItem => item.Author)
-                </h5>
-                <p class="card-text">
-                    <small class="text-muted">
-                        @{ TimeSpan timeSinceComment = DateTime.Now - item.CommentDate;
-                            string timeUnit;
-                            double timeValue;
-
-                            if (timeSinceComment.TotalDays >= 1)
-                            {
-                                timeUnit = "day";
-                                timeValue = timeSinceComment.TotalDays;
-                            }
-                            else if (timeSinceComment.TotalHours >= 1)
-                            {
-                                timeUnit = "hour";
-                                timeValue = timeSinceComment.TotalHours;
-                            }
-                            else if (timeSinceComment.TotalMinutes >= 1)
-                            {
-                                timeUnit = "minute";
-                                timeValue = timeSinceComment.TotalMinutes;
-                            }
-                            else
-                            {
-                                timeUnit = "second";
-                                timeValue = timeSinceComment.TotalSeconds;
-                            }
-
-                            string result = $"{Math.Round(timeValue)} {timeUnit}{(Math.Round(timeValue) == 1 ? "" : "s")} ago";
-                            @result }
-                    </small>
-                </p>
-                <p class="card-text text-body my-3">
-                    @Html.DisplayFor(modelItem => item.Message)
-                </p>
-                <div class="mx-1">
-                    <a title="Like comment" href="@Url.Action("Like", "Comments", new { id = item.Commentid })" class="card-link"><i class="fas fa-thumbs-up text-secondary"></i></a> @Html.DisplayFor(modelItem => item.Likes)
-                    <a title="Dislike comment" href="@Url.Action("Dislike", "Comments", new { id = item.Commentid })" class="card-link"><i class="fas fa-thumbs-down text-secondary"></i></a> @Html.DisplayFor(modelItem => item.Dislikes)
-                    <a title="Reply to comment" href="@Url.Action("Reply", "Comments", new { id = item.Commentid })" class="card-link"><i class="fa fa-reply text-black-50"></i></a>
-                    <a title="Delete comment"href="@Url.Action("Delete", "Comments", new { id = item.Commentid })" class="card-link float-right"><i class="fas fa-trash text-danger"></i></a>
-                </div>
-            </div>
-        </div>}
-</div>
+picture of styled comment
 ```
 
 # Likes & Dislikes
@@ -206,8 +114,7 @@ function dislike(id) {
 
 The like and dislike buttons were then updated to call the corresponding javascript functions when clicked:
 ```
-<a href="#" onclick="like(@item.Commentid); return false;" class="card-link"><i class="fas fa-thumbs-up text-secondary"></i></a><a id="likes @item.Commentid">@Html.DisplayFor(modelItem => item.Likes)</a>
-<a href="#" onclick="dislike(@item.Commentid); return false;" class="card-link mx-1"><i class="fas fa-thumbs-down text-secondary"></i></a><a id="dislikes @item.Commentid">@Html.DisplayFor(modelItem => item.Dislikes)</a>
+gif of like and dislike buttons being clicked
 ```
 
 # Like/Dislike ratio display
@@ -225,10 +132,7 @@ public double LikeRatio()
 
 Next, I added a Bootstrap progress bar to display the percentage of likes to dislikes:
 ```
-<div id="prog-super @item.Commentid" class="progress my-2 bg-danger" style="width: 35%;">
-    @{string width = item.LikeRatio() + "%";}
-    <div id="progress @item.Commentid" class="progress-bar bg-success" role="progressbar" style="width: @width" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-</div>
+picture of progress bar
 ```
 
 To make the like and dislike function more efficient, I added an increment function that the like and dislike functions call when they are run and an update function that updates the display of the like and dislike ratio bar when it is interacted with, so that it updates in real-time:
@@ -307,39 +211,17 @@ public JsonResult Dislike(int? id)
 
 I used a modal to bring up a confirmation menu when the delete button is clicked. The modal contains a message asking the user to confirm the deletion and two buttons, one to cancel the action and the other to delete the comment:
 ```
-<div class="modal-content">
-    <div class="modal-header bg-light">
-        <h5 class="modal-title text-danger" id="modalLabel">Delete Comment?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body bg-light">
-        Are you sure you want to delete this comment? This cannot be undone.
-    </div>
-    <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" onclick="deleteComment(@item.Commentid)" data-dismiss="modal">Delete</button>
-    </div>
-</div>
+gif of delete confirmation modal
 ```
 
 I also used another modal to bring up a pop-up confirming that the message was deleted successfully:
 ```
-<div class="modal fade" id="deleteConfirmation" tabindex="-1" role="alert" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body bg-success">
-                Comment deleted successfully.
-            </div>
-        </div>
-    </div>
-</div>
+gif of confirmation pop-up
 ```
 
 To interact with the second modal, delete the comment client-side, and call the delete controller, I made a deleteComment JavaScript function which also calls a confirmDelete function. The confirmDelete function shows a confirmation pop-up that the comment was deleted once the AJAX completes successfully. It also calls the deleteTable function which deletes the comment from the DOM:
 ```
-unction deleteComment(id) {
+function deleteComment(id) {
     $.ajax({
         type: "POST",
         url: "Delete",
