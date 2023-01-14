@@ -1,14 +1,25 @@
 # Live Project
 
-## Introduction
-Over the past 2 weeks at The Tech Academy I worked on the comments for a blog post section on an incomplete C# MVC Web Application. Integrating my design for the desired stories in the style of the base website was a wonderful way to push my programming capability, and improve as a programmer. I used EntitiyFramework and Bootstrap to develop responsive and fast interactions with the website and databases. I utilized AJAX integrated with ASP.NET's controllers to keep the website up to date with changes made by the user without refreshing the page.
+# Introduction
+Over the past 2 weeks at The Tech Academy, I worked on the comments for a blog post section of an incomplete C# MVC Web Application. The project was a great opportunity for me to push my programming capabilities and improve as a programmer. I used EntityFramework and Bootstrap to develop responsive and fast interactions with the website and databases. I utilized AJAX integrated with ASP.NET's controllers to keep the website up-to-date with changes made by the user without refreshing the page.
 
-Below are the stories I worked on, and how I solved them.
+The project was divided into several stories, each of which required different skills and techniques to solve. In this report, I will detail the stories I worked on, the skills I learned, and the solutions I implemented.
+
+
+
+# Skills Learned
+* Model creation and management using EntityFramework
+* Implementing basic CRUD functionality using ASP.NET's MVC framework
+* Creating and working with partial views in MVC
+* Using Bootstrap for styling and responsive design
+* Implementing AJAX for dynamic interactions with the website
+* Utilizing Razor for dynamic data display
+* Styling and formatting comments for improved user experience
 
 # Comment model
 The first story I was tasked with was to create a comment model. I then used the template made when creating the controller to get basic CRUD pages working so that I could create and view comments.
 
-This is the comment model I made, it has a constructor which sets the comment's date to the current time, and a LikeRatio function to return the ratio of likes and dislikes, I did end up updating this LikeRatio function later on, as it didn't quite fit my needs
+The comment model I created has a constructor which sets the comment's date to the current time, and a LikeRatio function to return the ratio of likes and dislikes. I did end up updating this LikeRatio function later on, as it didn't quite fit my needs:
 ```
 namespace TheatreCMS3.Areas.Blog.Models
 {
@@ -32,9 +43,7 @@ namespace TheatreCMS3.Areas.Blog.Models
 }
 ```
 # Comments partial view
-I was tasked with creating a partial view to display the comments so that the comments could be used in other views without causing bloat.
-
-This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now I just used the default template created as my goal was only to have a functioning partial to iterate on later
+The next story I worked on was creating a partial view to display the comments so that the comments could be used in other views without causing bloat. This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now, I just used the default template created, as my goal was only to have a functioning partial to iterate on later:
 ```
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -88,9 +97,7 @@ This was my first time working with partial views in MVC, and figuring out how t
 ```
 
 # Styling the comments
-My next task was to style the comments so that they would display nicer than the default MVC view.
-
-To start with I used Bootstrap to style the comments into a simple design which showed the author, likes, dislikes, a time since posting, a reply button, and a delete button. I used Razor to display a stylized time since posting the comment. I also implemented some temporary action links to be updated later for liking and disliking the comment
+My next task was to style the comments to improve their appearance compared to the default MVC view. To achieve this, I used Bootstrap to create a simple design that included the author, likes, dislikes, a time since posting, a reply button, and a delete button. I also utilized Razor to display a stylized time since the comment was posted. Additionally, I added temporary action links for liking and disliking the comments:
 ```
 <div class="table">
     @foreach (var item in Model)
@@ -146,10 +153,9 @@ To start with I used Bootstrap to style the comments into a simple design which 
 ```
 
 # Likes & Dislikes
-After updating the way comments were displayed I was tasked with adding functionality to the like and dislike buttons.
+The next story I worked on was adding functionality to the like and dislike buttons on the comments. This was a challenging task as it required me to use AJAX and MVC in the same application.
 
-I think I learned the most from this story, since I had never used AJAX and MVC in the same application.
-I added a like and dislike function to the controller
+I added a like and dislike function to the controller to handle the increase in likes and dislikes in the database:
 ```     
 [HttpPost]
 public JsonResult Like(int? id)
@@ -172,7 +178,7 @@ public JsonResult Dislike(int? id)
 }
 ```
 
-I also wrote Javascript functions to call them using AJAX. These functions also update the page to show a live display of the number of likes and dislikes without the page needing to be reloaded. It also only updates the current number of likes on a successful POST request, making sure that the database and the web page are always in sync even though the number of likes is being updated with Javascript I don't love my functions having side effects, but this seemed like a good way to do it concisely
+I also wrote Javascript functions to call the like and dislike functions using AJAX. These functions also update the page to show a live display of the number of likes and dislikes without the page needing to be reloaded:
 ```
 function like(id) {
     $.ajax({
@@ -198,16 +204,16 @@ function dislike(id) {
 }
 ```
 
-I also updated the like and dislike buttons to call the functions
+The like and dislike buttons were then updated to call the corresponding javascript functions when clicked:
 ```
 <a href="#" onclick="like(@item.Commentid); return false;" class="card-link"><i class="fas fa-thumbs-up text-secondary"></i></a><a id="likes @item.Commentid">@Html.DisplayFor(modelItem => item.Likes)</a>
 <a href="#" onclick="dislike(@item.Commentid); return false;" class="card-link mx-1"><i class="fas fa-thumbs-down text-secondary"></i></a><a id="dislikes @item.Commentid">@Html.DisplayFor(modelItem => item.Dislikes)</a>
 ```
 
 # Like/Dislike ratio display
-After getting liking and disliing comments functioning I was tasked to move on to a bar which showed the ratio of likes and dislikes.
+After getting the functionality for liking and disliking comments in place, I was tasked with creating a bar to show the ratio of likes to dislikes.
 
-I updated my Comments model to return a more usable LikeRatio number
+To accomplish this, I first updated my Comment model to return a more usable LikeRatio number:
 ```
 public double LikeRatio()
     {
@@ -217,7 +223,7 @@ public double LikeRatio()
     }
 ```
 
-Then I added a Bootstrap progress bar to display the percentage of likes to dislikes
+Next, I added a Bootstrap progress bar to display the percentage of likes to dislikes:
 ```
 <div id="prog-super @item.Commentid" class="progress my-2 bg-danger" style="width: 35%;">
     @{string width = item.LikeRatio() + "%";}
@@ -225,7 +231,7 @@ Then I added a Bootstrap progress bar to display the percentage of likes to disl
 </div>
 ```
 
-I decided I didn't want to have side effects or redundancies in my functions, so I added an increment function that the like and dislike functions call when they're run. I also added an update function which updates the display of the like and dislike ratio bar when it's interacted with so that it updates in real time
+To make the like and dislike function more efficient, I added an increment function that the like and dislike functions call when they are run and an update function that updates the display of the like and dislike ratio bar when it is interacted with, so that it updates in real-time:
 ```
 function like(id) {
     $.ajax({
@@ -270,7 +276,7 @@ function update(id) {
 }
 ```
 
-I also added a LikeRatio function to the controller so that I could use AJAX to get the like and dislike ratio
+Lastly, I added a LikeRatio function to the controller so that I could use AJAX to get the like and dislike ratio:
 ```
 [HttpPost]
 public JsonResult LikeRatio(int? id)
@@ -283,9 +289,9 @@ public JsonResult LikeRatio(int? id)
 ```
 
 # Delete button
-The last thing I worked on was a delete button that used Ajax. I was tasked with adding a delete button that didn't redirect the page when clicked.
+The last task I worked on was the implementation of a delete button that used Ajax. My goal was to add a delete button that wouldn't redirect the page when clicked.
 
-I added a Controller which deletes the comment when called
+I added a Controller that deletes the comment when called:
 ```
 [HttpPost]
 public JsonResult Dislike(int? id)
@@ -299,7 +305,7 @@ public JsonResult Dislike(int? id)
 }
 ```
 
-I used a modal to bring up a confirmation menu when the button is deleted.
+I used a modal to bring up a confirmation menu when the delete button is clicked. The modal contains a message asking the user to confirm the deletion and two buttons, one to cancel the action and the other to delete the comment:
 ```
 <div class="modal-content">
     <div class="modal-header bg-light">
@@ -318,7 +324,7 @@ I used a modal to bring up a confirmation menu when the button is deleted.
 </div>
 ```
 
-I also used another modal to bring up a pop-up confirming that the message was deleted
+I also used another modal to bring up a pop-up confirming that the message was deleted successfully:
 ```
 <div class="modal fade" id="deleteConfirmation" tabindex="-1" role="alert" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -331,7 +337,7 @@ I also used another modal to bring up a pop-up confirming that the message was d
 </div>
 ```
 
-To interact with the second modal, delete the comment clientside, and call the delete controller I made a deleteComment javascript function which also calls a confirmDelete function. The confirmDelete function shows a confirmation pop up that the comment was deleted once the AJAX completes successfully. It also calls the deleteTable function which deletes the comment from the DOM
+To interact with the second modal, delete the comment client-side, and call the delete controller, I made a deleteComment JavaScript function which also calls a confirmDelete function. The confirmDelete function shows a confirmation pop-up that the comment was deleted once the AJAX completes successfully. It also calls the deleteTable function which deletes the comment from the DOM:
 ```
 unction deleteComment(id) {
     $.ajax({
@@ -355,8 +361,3 @@ function deleteTable(id) {
     table.remove();
 }
 ```
-
-# Skills learned
-* Connecting AJAX with MVC controllers
-* Using browser developer tools to make sure that css displays correctly
-* 
