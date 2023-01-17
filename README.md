@@ -134,7 +134,7 @@ public JsonResult Dislike(int? id)
 }
 ```
 
-I used a modal to bring up a confirmation menu when the delete button is clicked. The modal contains a message asking the user to confirm the deletion and two buttons, one to cancel the action and the other to delete the comment, I also used another modal to bring up a pop-up confirming that the message was deleted successfully::
+I used a modal to bring up a confirmation menu when the delete button is clicked. The modal contains a message asking the user to confirm the deletion and two buttons, one to cancel the action and the other to delete the comment, I also used another modal to bring up a pop-up confirming that the message was deleted successfully:
 
 ![delete confirmation](https://github.com/adinrichter/CS_code_summary/blob/main/media/delete_confirmation.gif)
 
