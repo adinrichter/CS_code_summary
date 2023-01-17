@@ -54,63 +54,45 @@ The next story I worked on was creating a partial view to display the comments s
 ![default comment](https://github.com/adinrichter/CS_code_summary/blob/main/media/default_comment.png)
 
 # Styling the comments
-My next task was to style the comments to improve their appearance compared to the default MVC view. To achieve this, I used Bootstrap to create a simple design that included the author, likes, dislikes, a time since posting, a reply button, and a delete button. I also utilized Razor to display a stylized time since the comment was posted. Additionally, I added temporary action links for liking and disliking the comments:
+My next task was to style the comments to improve their appearance compared to the default MVC view. To achieve this, I used Bootstrap to create a simple design that included the author, likes, dislikes, a time since posting, a reply button, and a delete button.
+
+I also utilized Razor to display a stylized time since the comment was posted:
+```
+@{ TimeSpan timeSinceComment = DateTime.Now - item.CommentDate;
+    string timeUnit;
+    double timeValue;
+
+    if (timeSinceComment.TotalDays >= 1)
+    {
+        timeUnit = "day";
+        timeValue = timeSinceComment.TotalDays;
+    }
+    else if (timeSinceComment.TotalHours >= 1)
+    {
+        timeUnit = "hour";
+        timeValue = timeSinceComment.TotalHours;
+    }
+    else if (timeSinceComment.TotalMinutes >= 1)
+    {
+        timeUnit = "minute";
+        timeValue = timeSinceComment.TotalMinutes;
+    }
+    else
+    {
+        timeUnit = "second";
+        timeValue = timeSinceComment.TotalSeconds;
+    }
+
+    string result = $"{Math.Round(timeValue)} {timeUnit}{(Math.Round(timeValue) == 1 ? "" : "s")} ago";
+@result }
+```
 
 ![styled comment](https://github.com/adinrichter/CS_code_summary/blob/main/media/styled_comment.png)
 
 # Likes & Dislikes
 The next story I worked on was adding functionality to the like and dislike buttons on the comments. This was a challenging task as it required me to use AJAX and MVC in the same application.
 
-I added a like and dislike function to the controller to handle the increase in likes and dislikes in the database:
-```     
-[HttpPost]
-public JsonResult Like(int? id)
-{
-    Comment comment = db.Comments.Find(id);
-    int CurrentLikes = comment.Likes;
-    comment.Likes = CurrentLikes + 1;
-    db.SaveChanges();
-    return Json(comment);
-}
-
-[HttpPost]
-public JsonResult Dislike(int? id)
-{
-    Comment comment = db.Comments.Find(id);
-    int CurrentDislikes = comment.Dislikes;
-    comment.Dislikes = CurrentDislikes + 1;
-    db.SaveChanges();
-    return Json(comment);
-}
-```
-
-I also wrote Javascript functions to call the like and dislike functions using AJAX. These functions also update the page to show a live display of the number of likes and dislikes without the page needing to be reloaded:
-```
-function like(id) {
-    $.ajax({
-        type: "POST",
-        url: "Like",
-        data: { id: id },
-        success: function (data) {
-            likes = parseInt(document.getElementById(`likes ${id}`).innerHTML)
-            document.getElementById(`likes ${id}`).innerHTML = likes + 1;
-        }
-    });
-}
-function dislike(id) {
-    $.ajax({
-        type: "POST",
-        url: "Dislike",
-        data: { id: id },
-        success: function (data) {
-            dislikes = parseInt(document.getElementById(`dislikes ${id}`).innerHTML)
-            document.getElementById(`dislikes ${id}`).innerHTML = dislikes + 1;
-        }
-    });
-}
-```
-
-The like and dislike buttons were then updated to call the corresponding javascript functions when clicked:
+I wrote Javascript functions to call the like and dislike controllers using AJAX. These functions also update the page to show a live display of the number of likes and dislikes without the page needing to be reloaded:
 
 ![like and dislike buttons](https://github.com/adinrichter/CS_code_summary/blob/main/media/like_and_dislike_buttons.gif)
 
