@@ -110,9 +110,11 @@ public double LikeRatio()
 ```
 
 Next, I added a Bootstrap progress bar to display the percentage of likes to dislikes:
+
 ![progress bar](https://github.com/adinrichter/CS_code_summary/blob/main/media/progress_bar.png)
 
 To make the like and dislike function more efficient, I added a likeratio controller to get the current number likes and dislikes with ajax, and added an update function that runs when the like or dislike button is clicked so that it updates in real-time:
+
 ![realtime progress bar](https://github.com/adinrichter/CS_code_summary/blob/main/media/realtime_progress%20bar.gif)
 
 # Delete button
