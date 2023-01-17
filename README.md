@@ -50,15 +50,13 @@ namespace TheatreCMS3.Areas.Blog.Models
 ```
 # Comments partial view
 The next story I worked on was creating a partial view to display the comments so that the comments could be used in other views without causing bloat. This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now, I just used the default template created, without doing any styling as my goal was only to have a functioning partial to iterate on later:
-```
-picture of default comment view
-```
+
+![default comment](https://github.com/adinrichter/CS_code_summary/blob/main/media/default_comment.png)
 
 # Styling the comments
 My next task was to style the comments to improve their appearance compared to the default MVC view. To achieve this, I used Bootstrap to create a simple design that included the author, likes, dislikes, a time since posting, a reply button, and a delete button. I also utilized Razor to display a stylized time since the comment was posted. Additionally, I added temporary action links for liking and disliking the comments:
-```
-picture of styled comment
-```
+
+![styled comment](https://github.com/adinrichter/CS_code_summary/blob/main/media/styled_comment.png)
 
 # Likes & Dislikes
 The next story I worked on was adding functionality to the like and dislike buttons on the comments. This was a challenging task as it required me to use AJAX and MVC in the same application.
@@ -113,9 +111,8 @@ function dislike(id) {
 ```
 
 The like and dislike buttons were then updated to call the corresponding javascript functions when clicked:
-```
-gif of like and dislike buttons being clicked
-```
+
+![like and dislike buttons](https://github.com/adinrichter/CS_code_summary/blob/main/media/like_and_dislike_buttons.gif)
 
 # Like/Dislike ratio display
 After getting the functionality for liking and disliking comments in place, I was tasked with creating a bar to show the ratio of likes to dislikes.
@@ -131,66 +128,10 @@ public double LikeRatio()
 ```
 
 Next, I added a Bootstrap progress bar to display the percentage of likes to dislikes:
-```
-picture of progress bar
-```
+![progress bar](https://github.com/adinrichter/CS_code_summary/blob/main/media/progress_bar.png)
 
-To make the like and dislike function more efficient, I added an increment function that the like and dislike functions call when they are run and an update function that updates the display of the like and dislike ratio bar when it is interacted with, so that it updates in real-time:
-```
-function like(id) {
-    $.ajax({
-        type: "POST",
-        url: "Like",
-        data: { id: id },
-        success: function (data) {
-            increment(`likes ${id}`);
-            update(id);
-        }
-    });
-}
-
-function dislike(id) {
-    $.ajax({
-        type: "POST",
-        url: "Dislike",
-        data: { id: id },
-        success: function (data) {
-            increment(`dislikes ${id}`);
-            update(id);
-        }
-    });
-}
-
-function increment(id) {
-    const element = document.getElementById(id);
-    value = parseInt(element.innerHTML)
-    element.innerHTML = value + 1;
-}
-
-function update(id) {
-    $.ajax({
-        type: "POST",
-        url: "LikeRatio",
-        data: { id: id },
-        success: function (response) {
-            document.getElementById(`progress ${id}`).style.width = `${response}%`;
-            document.getElementById(`prog-super ${id}`).className = "progress my-2 bg-danger";
-        }
-    });
-}
-```
-
-Lastly, I added a LikeRatio function to the controller so that I could use AJAX to get the like and dislike ratio:
-```
-[HttpPost]
-public JsonResult LikeRatio(int? id)
-{
-    Comment comment = db.Comments.Find(id);
-    double data = comment.LikeRatio();
-    string LikeRatio = JsonConvert.SerializeObject(data);
-    return Json(LikeRatio);
-}
-```
+To make the like and dislike function more efficient, I added a likeratio controller to get the current number likes and dislikes with ajax, and added an update function that runs when the like or dislike button is clicked so that it updates in real-time:
+![realtime progress bar](https://github.com/adinrichter/CS_code_summary/blob/main/media/realtime_progress%20bar.gif)
 
 # Delete button
 The last task I worked on was the implementation of a delete button that used Ajax. My goal was to add a delete button that wouldn't redirect the page when clicked.
@@ -209,15 +150,9 @@ public JsonResult Dislike(int? id)
 }
 ```
 
-I used a modal to bring up a confirmation menu when the delete button is clicked. The modal contains a message asking the user to confirm the deletion and two buttons, one to cancel the action and the other to delete the comment:
-```
-gif of delete confirmation modal
-```
+I used a modal to bring up a confirmation menu when the delete button is clicked. The modal contains a message asking the user to confirm the deletion and two buttons, one to cancel the action and the other to delete the comment, I also used another modal to bring up a pop-up confirming that the message was deleted successfully::
 
-I also used another modal to bring up a pop-up confirming that the message was deleted successfully:
-```
-gif of confirmation pop-up
-```
+![delete confirmation](https://github.com/adinrichter/CS_code_summary/blob/main/media/delete_confirmation.gif)
 
 To interact with the second modal, delete the comment client-side, and call the delete controller, I made a deleteComment JavaScript function which also calls a confirmDelete function. The confirmDelete function shows a confirmation pop-up that the comment was deleted once the AJAX completes successfully. It also calls the deleteTable function which deletes the comment from the DOM:
 ```
@@ -243,3 +178,6 @@ function deleteTable(id) {
     table.remove();
 }
 ```
+
+# Final Thoughts
+This was an amazing project, while I wish I could have gotten to do more work on it, I learned a ton about the design process for web design, and gained a much better capacity for problem solving and design. I loved the process of getting an open-ended task, and then getting to find my own unique solution to solving it.
