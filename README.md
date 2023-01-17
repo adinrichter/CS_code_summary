@@ -49,7 +49,7 @@ namespace TheatreCMS3.Areas.Blog.Models
 }
 ```
 # Comments partial view
-The next story I worked on was creating a partial view to display the comments so that the comments could be used in other views without causing bloat. This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now, I just used the default template created, as my goal was only to have a functioning partial to iterate on later:
+The next story I worked on was creating a partial view to display the comments so that the comments could be used in other views without causing bloat. This was my first time working with partial views in MVC, and figuring out how to set them up was very insightful. For now, I just used the default template created, without doing any styling as my goal was only to have a functioning partial to iterate on later:
 ```
 picture of default comment view
 ```
